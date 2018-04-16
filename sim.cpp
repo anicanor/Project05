@@ -29,9 +29,10 @@ bool checkerAvailable(Checker [], int, int&);
 bool validInt(char *);
 
 //The three priority queues
-Pqueue arrival_queue;
-Pqueue checker_queue;
-Pqueue shopping_queue;
+Pqueue arrivalQueue;
+Pqueue shoppingQueue;
+Pqueue checkerQueue;
+
 int main(int argc, char *argv[]){
 
 	//Detects if there's an error. This codes writes out the error using the command lines
@@ -81,21 +82,21 @@ int main(int argc, char *argv[]){
           
     	my_ifile >> arrivalTime;
     	my_ifile >> numItems;
-    	arrival_queue.enqueue(new Cust(name, isShopper,arrivalTime,numItems),arrivalTime);
+    	arrivalQueue.enqueue(new Cust(name, isShopper,arrivalTime,numItems),arrivalTime);
 	}
   
 //Begins the simulation
-simStart(arrival_queue, atoi(argv[1]),atoi(argv[2]),my_ofile);
+simStart(arrivalQueue, atoi(argv[1]),atoi(argv[2]),my_ofile);
 
 return 0;
 }
 //Defining functions
-void simStart(Pqueue &arrival_queue, int num_checkers, int check_break_duration, ostream &os){
+void simStart(Pqueue &arrivalQueue, int num_checkers, int check_break_duration, ostream &os){
 
 	//Variable declaration
 	int end_time = 0;
 	int finishedShopTime;
-	int numCustomers = arrival_queue.length();
+	int numCustomers = arrivalQueue.length();
 	Checker *checkers = new Checker[num_checkers];
   
 	//This loop will initialize the checkers
@@ -110,20 +111,20 @@ void simStart(Pqueue &arrival_queue, int num_checkers, int check_break_duration,
 	for(int clock = 1; numCustomers > 0; clock++){
   
     	//Checks if the customers are still at the store
-    	while(arrival_queue.priorityOne() == clock){
+    	while(arrivalQueue.priorityOne() == clock){
       
-        	Cust *removedCust = arrival_queue.dequeue();
+        	Cust *removedCust = arrivalQueue.dequeue();
         	removedCust->print_entered(os,clock);
         	finishedShopTime = removedCust->arrivalTime() + removedCust->numItems()*2;
-        	shopping_queue.enqueue(removedCust, finishedShopTime);
+        	shoppingQueue.enqueue(removedCust, finishedShopTime);
     	}
       
     	//Checks if the customers are done
-    	while(shopping_queue.priorityOne() == clock){
+    	while(shoppingQueue.priorityOne() == clock){
       
-        	Cust *removedCust = shopping_queue.dequeue();
-        	removedCust->print_finished_shopping(os,clock);
-        	checker_queue.enqueue(removedCust, 0);
+        	Cust *removedCust = shoppingQueue.dequeue();
+        	removedCust->printFinishedShopping(os,clock);
+        	checkerQueue.enqueue(removedCust, 0);
     	}
       
     	//Will run through the checker
@@ -132,55 +133,53 @@ void simStart(Pqueue &arrival_queue, int num_checkers, int check_break_duration,
         	//Checks if the customer is being served and items being bought
         	if(checkers[i].ptrCust != NULL && clock == checkers[i].finishedTime){
           
-            	//Checks if the customer is a robber
-            	if(checkers[i].ptrCust->is_robber()){
+            		//Checks if the customer is a robber
+            		if(checkers[i].ptrCust->is_robber()){
               
-                	checkers[i].ptrCust->print_finished_checkout(os,clock,i,checkers[i].checker_money);
-                	checkers[i].checker_money = 0;
-                	checkers[i].breakTime = check_break_duration;
-            	}else{
+                		checkers[i].ptrCust->printFinishedCheckout(os,clock,i,checkers[i].checker_money);
+                		checkers[i].checker_money = 0;
+                		checkers[i].breakTime = check_break_duration;
+            		}else{
               
-                	checkers[i].ptrCust->print_finished_checkout(os,clock,i,checkers[i].checker_money);
-                	checkers[i].checker_money = checkers[i].checker_money + checkers[i].ptrCust->numItems()*3;
-            	}
-            	delete checkers[i].ptrCust;
-     	        numCustomers--;
-            	checkers[i].ptrCust = NULL;
-            }
+                		checkers[i].ptrCust->print_finished_checkout(os,clock,i,checkers[i].checker_money);
+                		checkers[i].checker_money = checkers[i].checker_money + checkers[i].ptrCust->numItems()*3;
+            		}
+            		delete checkers[i].ptrCust;
+     	       	 	numCustomers--;
+            		checkers[i].ptrCust = NULL;
+           	}
       }
-      	int checkerReady = 0;
+      int checkerReady = 0;
         
-      	//Looks if checker is open
-      	while(checker_queue.length() > 0 && checkerAvailable(checkers,num_checkers,checkerReady)){
+      //Looks if checker is open
+      while(checkerQueue.length() > 0 && checkerAvailable(checkers,num_checkers,checkerReady)){
         
-        	Cust *removedCust = checker_queue.dequeue();
+      		Cust *removedCust = checkerQueue.dequeue();
         	checkers[checkerReady].ptrCust = removedCust;
           
         	//Checks if the customer is a robber
         	if(checkers[checkerReady].ptrCust->is_robber())
-            	checkers[checkerReady].finishedTime = clock + 7;
+            		checkers[checkerReady].finishedTime = clock + 7;
         	else
-            	checkers[checkerReady].finishedTime = clock + checkers[checkerReady].ptrCust->numItems();//*2;
+            		checkers[checkerReady].finishedTime = clock + checkers[checkerReady].ptrCust->numItems();//*2;
               
-        	checkers[checkerReady].ptrCust->print_begin_checkout(os,clock,checkerReady);
+        	checkers[checkerReady].ptrCust->printBeginCheckout(os,clock,checkerReady);
        	}
         
        	//This loop drops the checker's break time
        	for(int i = 0; i < num_checkers; i++){
         
-        	if(checkers[i].breakTime > 0){
-          
-            	checkers[i].breakTime--;
-        	}
+        	if(checkers[i].breakTime > 0)
+          		checkers[i].breakTime--;
+        	
        	}
        	end_time++;
       }
       
 //Prints the checker's money
-for( int i = 0; i < num_checkers; i++){
-
+for( int i = 0; i < num_checkers; i++)
 	os << "registers[" << i << "] = $" << checkers[i].checker_money << endl;
-}
+
 
 //Prints out the end time
 os << "time = " << end_time + 1 << endl;
@@ -191,11 +190,11 @@ bool checkerAvailable(Checker checkers[], int num_checkers, int &checkerAvailabl
 
 	for(int i = 0; i < num_checkers; i++){
   
-    	if(checkers[i].breakTime == 0 && checkers[i].ptrCust == NULL){
+    		if(checkers[i].breakTime == 0 && checkers[i].ptrCust == NULL){
       
-        	checkerAvailable = i;
-        	return true;
-    	}
+        		checkerAvailable = i;
+        		return true;
+    		}
 	}
 	return false;
 }
@@ -205,9 +204,9 @@ bool validInt(char *str){
 
 	while(*str != 0){
   
-    	if(!isdigit(*str))
-    	return false;
-    	str++;
+    		if(!isdigit(*str))
+    			return false;
+    		str++;
 	}
 	return true;
 }
