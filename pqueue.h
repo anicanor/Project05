@@ -19,7 +19,6 @@ class Pqueue{
     	void enqueue(Cust *, int);
     	bool dequeue(int &);
     	bool empty();
-    	void print();
     	int priorityOne();
     	int length();
 	
