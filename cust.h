@@ -3,24 +3,28 @@
 //anicanor
 #ifndef CUST_H_
 #define CUST_H_
-
 #include<iostream>
 
 using namespace std;
 
 class Cust{
-
+	
 	public:
-    	Cust(string,bool,int,int);
+    	Cust(string, bool, int, int);
     	void print(ostream &);
-    	bool m_isRobber;
-      
+    	bool is_robber();
+    	int numItems();
+    	int arrivalTime();
+    	void printEntered(ostream &, int);
+    	void printFinishedShopping(ostream &, int);
+    	void printFinishedCheckout(ostream &, int, int, int);
+    	void printBeginCheckout(ostream &, int, int);
+	
 	private:
     	string m_name;
-      int m_num_items;
-    	int m_arrival_time;
-    	
-    	
+    	bool m_isRobber;
+    	int m_arrivalTime;
+    	int m_numItems;
 };
-
 #endif
+
