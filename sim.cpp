@@ -114,7 +114,7 @@ void simStart(Pqueue &arrivalQueue, int num_checkers, int check_break_duration, 
     	while(arrivalQueue.priorityOne() == clock){
       
         	Cust *removedCust = arrivalQueue.dequeue();
-        	removedCust->print_entered(os,clock);
+        	removedCust->printEntered(os,clock);
         	finishedShopTime = removedCust->arrivalTime() + removedCust->numItems()*2;
         	shoppingQueue.enqueue(removedCust, finishedShopTime);
     	}
@@ -141,7 +141,7 @@ void simStart(Pqueue &arrivalQueue, int num_checkers, int check_break_duration, 
                 		checkers[i].breakTime = check_break_duration;
             		}else{
               
-                		checkers[i].ptrCust->print_finished_checkout(os,clock,i,checkers[i].checker_money);
+                		checkers[i].ptrCust->printFinishedCheckout(os,clock,i,checkers[i].checker_money);
                 		checkers[i].checker_money = checkers[i].checker_money + checkers[i].ptrCust->numItems()*3;
             		}
             		delete checkers[i].ptrCust;
