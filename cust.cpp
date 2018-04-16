@@ -63,7 +63,7 @@ void Cust::print_finished_shopping(ostream &os, int clock){
 }
 
 //Checks how much money was stolen
-void Cust:: print_finished_checkout(ostream &os, int clock, int num_checker, int checker_money){
+void Cust::print_finished_checkout(ostream &os, int clock, int num_checker, int checker_money){
 	
 	if(m_isRobber == false){
 		
