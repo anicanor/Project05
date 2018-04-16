@@ -49,21 +49,21 @@ int Cust::arrivalTime(){
 }
 
 //Function that was given in directions
-void Cust::print_entered(ostream &os, int clock){
+void Cust::printEntered(ostream &os, int clock){
 	
 	assert(clock == m_arrivalTime);
 	os << clock << ": " << m_name << " entered store" << endl;
 }
 
 //Prints out a message when the shopping is finished
-void Cust::print_finished_shopping(ostream &os, int clock){
+void Cust::printFinishedShopping(ostream &os, int clock){
 	
 	assert (clock == m_arrivalTime + m_numItems * 2);
 	os << clock << ": " << m_name << " done shopping" << endl;
 }
 
 //Checks how much money was stolen
-void Cust::print_finished_checkout(ostream &os, int clock, int num_checker, int checker_money){
+void Cust::printFinishedCheckout(ostream &os, int clock, int num_checker, int checker_money){
 	
 	if(m_isRobber == false){
 		
@@ -85,7 +85,7 @@ void Cust::print_finished_checkout(ostream &os, int clock, int num_checker, int 
 }
 
 //Prints out when the customer started shopping
-void Cust::print_begin_checkout(ostream &os, int clock, int num_checker){
+void Cust::printBeginCheckout(ostream &os, int clock, int num_checker){
 	
 	os << clock << ": " <<m_name << " started checkout with checker " << num_checker << endl;
 }
